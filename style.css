@@ -1,125 +1,89 @@
-* {
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
-}
-
-body {
-  margin: 0;
-  background: #f2f4f6;
-}
-
-.app {
-  max-width: 390px;
-  margin: auto;
-  padding: 16px 16px 90px;
-}
-
-header {
-  margin-bottom: 20px;
-}
-
-h1 {
-  font-size: 22px;
-  margin: 0;
-}
-
-.subtitle {
-  font-size: 13px;
-  color: #6b7684;
-  margin-top: 4px;
-}
-
-.card {
-  background: #fff;
-  border-radius: 16px;
+/* 컨테이너: 화면에 꽉 차지 않지 않도록 최대 너비 설정 및 가운데 정렬 */
+.container, .app, #app {
+  max-width: 900px; /* 필요시 조정 */
+  margin: 0 auto;
   padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+  box-sizing: border-box;
 }
 
-.card.highlight {
-  background: #f9fafb;
+/* 기본 버튼 스타일: 인라인 블록, 적당한 패딩, 경계와 배경 지정 */
+button, .btn {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
 }
 
-.field {
+/* 작은 버튼 변형 */
+button.small, .btn.small {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+/* 레이아웃 여백: 입력 영역과 결과 영역 분리 */
+.header, .controls, .results {
   margin-bottom: 12px;
 }
 
-label {
-  font-size: 13px;
-  color: #4e5968;
-  margin-bottom: 6px;
-  display: block;
-}
-
-input, select {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 14px;
-  border-radius: 10px;
-  border: 1px solid #d1d6db;
-  margin-bottom: 6px;
-}
-
-.checkbox {
-  font-size: 14px;
-  margin-top: 8px;
-}
-
-.score-label {
-  font-size: 13px;
-  color: #6b7684;
-}
-
-.score {
-  font-size: 32px;
-  font-weight: 700;
-  margin: 6px 0 10px;
-}
-
-ul {
-  padding-left: 18px;
-  font-size: 13px;
-  color: #4e5968;
+/* 기록 리스트: 여백과 카드 같은 배경으로 구분 */
+#records {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .record-item {
-  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  display: block;
+  background: #fff;
 }
 
-.record-item button {
-  margin-top: 6px;
-  padding: 6px;
-  font-size: 12px;
+/* 레코드 한 줄 레이아웃: 좌우 공간을 나눔 */
+.record-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 
-button {
-  border: none;
-  border-radius: 12px;
-  padding: 12px;
-  font-size: 15px;
+/* 정보 영역은 가변 너비, 액션 영역(버튼)은 고정 크기 유지 */
+.record-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* 텍스트 잘림 방지 */
 }
 
-button.ghost {
-  background: #f2f4f6;
+.record-time {
+  font-size: 0.9em;
+  color: #666;
+  margin-left: 8px;
 }
 
-button.danger {
-  color: #e53935;
+.record-details {
+  color: #666;
+  margin-top: 4px;
 }
 
-.cta {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: 390px;
-  background: #0064ff;
-  color: #fff;
-  font-size: 17px;
-  font-weight: 600;
-  padding: 16px;
-  border-radius: 14px;
-  box-shadow: 0 10px 20px rgba(0,100,255,0.3);
+.record-actions {
+  flex: 0 0 auto; /* 버튼 영역이 늘어나지 않음 */
+}
+
+/* 모바일 반응형: 좁은 화면에서는 세로 스택 */
+@media (max-width: 480px) {
+  .container, .app, #app {
+    padding: 10px;
+    max-width: 100%;
+  }
+  .record-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .record-actions {
+    margin-top: 8px;
+  }
 }
