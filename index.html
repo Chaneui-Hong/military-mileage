@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>군 근무 마일리지 계산기</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <h1>군 근무 마일리지 계산기</h1>
+
+    <div class="card">
+      <label>시작 일시</label>
+      <input type="datetime-local" id="startTime" />
+
+      <label>종료 일시</label>
+      <input type="datetime-local" id="endTime" />
+
+      <label>근무일 유형</label>
+      <select id="dayType">
+        <option value="weekday">평일</option>
+        <option value="weekend">주말 / 공휴일 / 전투휴무</option>
+      </select>
+
+      <label class="checkbox">
+        <input type="checkbox" id="substitute" />
+        대리근무
+      </label>
+
+      <button onclick="onCalculate()">계산하기</button>
+    </div>
+
+    <div class="card result">
+      <div id="score">-</div>
+      <pre id="reason">계산 근거가 여기에 표시됩니다.</pre>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
