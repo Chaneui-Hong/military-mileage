@@ -38,6 +38,7 @@ function calculate() {
   let minuteData = [];
   let tempCur = new Date(start);
   while (tempCur < end) {
+    // 같은 날짜인지 여부로 시작/종료의 dayType을 나눔 (원래 로직 유지)
     const dayType = tempCur.toDateString() === start.toDateString() ? sType : eType;
     let point = basePoint(dayType, tempCur.getHours());
     if (sub) {
@@ -53,12 +54,12 @@ function calculate() {
     return;
   }
 
-  // 2. 최적 4시간(240분) 구간 탐색 (구간 길이는 최대 240분, 여기선 최대 길이인 240분(또는 전체 길이) 고정으로 처리)
+  // 2. 최적 4시간(240분) 구간 탐색 (고정 길이 윈도우; 전체가 240분 미만이면 전체 길이 사용)
   const windowSize = Math.min(minuteData.length, 240);
   let bestScoreSum = -Infinity;
   let bestStartIdx = 0;
 
-  // 슬라이딩 윈도우(고정 길이 windowSize)로 최대 합을 찾음
+  // 초기 윈도우 합
   let currentSum = 0;
   for (let i = 0; i < windowSize; i++) currentSum += minuteData[i].point;
   bestScoreSum = currentSum;
@@ -73,52 +74,58 @@ function calculate() {
 
   const bestWindow = minuteData.slice(bestStartIdx, bestStartIdx + windowSize);
 
-  // 3. 구간별 분리 및 사용자 규칙에 따른 반올림 계산 (같은 점수 연속 구간별로 분 단위 합산 후 반올림)
+  // 3. 구간별 반올림 계산 및 UI용 데이터 구성 (같은 점수 연속 구간별로 분 단위 합산 후 반올림)
   let finalScore = 0;
-  let detailList = [];
+  let detailHTML = "";
   let currentGroup = { point: bestWindow[0].point, minutes: 0 };
+
+  function addGroupToResult(group) {
+    const roundedHours = applyCustomRound(group.minutes);
+    const groupScore = roundedHours * group.point;
+    finalScore += groupScore;
+
+    // 모바일 앱 느낌의 상세 내역 HTML 생성
+    detailHTML += `
+      <div class="detail-item" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9;">
+        <div class="detail-info" style="color:#334155;">
+          <div class="label" style="font-size:13px;">${group.minutes}분 근무 <small style="color:#94a3b8;">(반올림: ${roundedHours}시간)</small></div>
+          <div class="meta" style="font-size:12px; color:#64748b;">배율: ${group.point.toFixed(1)}점</div>
+        </div>
+        <div style="font-weight:700; color:#3182f6; align-self:center;">+${groupScore.toFixed(2)}</div>
+      </div>`;
+  }
 
   for (let m of bestWindow) {
     if (m.point === currentGroup.point) {
       currentGroup.minutes++;
     } else {
-      // 구간이 바뀌면 해당 그룹에 반올림 규칙 적용하여 시간 환산 후 점수 누적
-      const roundedHours = applyCustomRound(currentGroup.minutes);
-      finalScore += roundedHours * currentGroup.point;
-      detailList.push({
-        rawMinutes: currentGroup.minutes,
-        roundedHours: roundedHours,
-        point: currentGroup.point
-      });
+      addGroupToResult(currentGroup);
       currentGroup = { point: m.point, minutes: 1 };
     }
   }
   // 마지막 그룹 처리
-  const lastRoundedHours = applyCustomRound(currentGroup.minutes);
-  finalScore += lastRoundedHours * currentGroup.point;
-  detailList.push({
-    rawMinutes: currentGroup.minutes,
-    roundedHours: lastRoundedHours,
-    point: currentGroup.point
-  });
+  addGroupToResult(currentGroup);
 
-  // 4. UI 출력
+  // 4. 화면 업데이트
+  const scoreEl = document.getElementById("score");
+  const reasonEl = document.getElementById("reason");
   const actualStart = bestWindow[0].time;
   const actualEnd = new Date(bestWindow[bestWindow.length - 1].time.getTime() + 60000);
 
-  score.innerText = `${finalScore.toFixed(2)} 점`;
-  reason.innerHTML = `<strong>최적 구간: ${actualStart.toLocaleTimeString()} ~ ${actualEnd.toLocaleTimeString()}</strong>`;
-
-  detailList.forEach(d => {
-    const li = document.createElement("li");
-    li.innerText = `${d.rawMinutes}분 → ${d.roundedHours}시간 적용 × ${d.point.toFixed(2)}점`;
-    reason.appendChild(li);
-  });
+  if (scoreEl) scoreEl.innerText = `${finalScore.toFixed(2)} 점`;
+  if (reasonEl) {
+    reasonEl.innerHTML = `
+      <div style="color:#8b95a1; font-size:14px; margin-bottom:12px;">
+        최적 구간: ${actualStart.toLocaleTimeString()} ~ ${actualEnd.toLocaleTimeString()}
+      </div>
+      ${detailHTML}
+    `;
+  }
 
   records.push({
     score: finalScore,
-    displayTime: `${actualStart.toLocaleTimeString()}~${actualEnd.toLocaleTimeString()}`,
-    details: detailList.map(d => `${d.roundedHours}h×${d.point}`).join(", ")
+    timeRange: `${actualStart.toLocaleTimeString()} ~ ${actualEnd.toLocaleTimeString()}`,
+    date: actualStart.toLocaleDateString()
   });
   render();
 }
@@ -127,30 +134,28 @@ function render() {
   let recordsEl = document.getElementById("records");
   if (!recordsEl) return;
 
-  let totalEl = document.getElementById("totalScore");
-  if (!totalEl) {
-    totalEl = document.createElement("div");
-    totalEl.id = "totalScore";
-    totalEl.style.fontWeight = "bold";
-    totalEl.style.marginBottom = "10px";
-    recordsEl.parentNode.insertBefore(totalEl, recordsEl);
+  // totalScoreValue 요소를 우선 찾고, 없으면 동적으로 생성 (기존 동작과 호환 유지)
+  let totalScoreEl = document.getElementById("totalScoreValue");
+  if (!totalScoreEl) {
+    totalScoreEl = document.createElement("div");
+    totalScoreEl.id = "totalScoreValue";
+    totalScoreEl.style.fontWeight = "bold";
+    totalScoreEl.style.marginBottom = "10px";
+    recordsEl.parentNode.insertBefore(totalScoreEl, recordsEl);
   }
 
   const total = records.reduce((sum, r) => sum + (r.score || 0), 0);
-  totalEl.innerText = `누적 점수: ${total.toFixed(2)}점 (${records.length}건)`;
+  totalScoreEl.innerText = `누적 점수: ${total.toFixed(2)}점 (${records.length}건)`;
 
-  recordsEl.innerHTML = "";
-  records.forEach((r, i) => {
-    const li = document.createElement("li");
-    li.className = "record-item";
-    li.innerHTML = `
-      <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:5px;">
-        <div><strong>${r.score.toFixed(2)}점</strong> <small>(${r.displayTime})</small></div>
-        <button onclick="del(${i})">삭제</button>
+  recordsEl.innerHTML = records.map((r, i) => `
+    <div class="record-item" style="display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #eef2f7;">
+      <div>
+        <div class="record-score" style="font-weight:700;">${r.score.toFixed(2)} 점</div>
+        <div class="record-meta" style="font-size:12px; color:#64748b;">${r.date} · ${r.timeRange}</div>
       </div>
-    `;
-    recordsEl.appendChild(li);
-  });
+      <button class="btn-delete" onclick="del(${i})" style="background:#ef4444; color:#fff; border:none; padding:6px 10px; border-radius:4px;">삭제</button>
+    </div>
+  `).join("");
 }
 
 function del(i) {
