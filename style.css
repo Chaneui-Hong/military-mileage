@@ -87,3 +87,57 @@ button.small, .btn.small {
     margin-top: 8px;
   }
 }
+
+
+/* --- overflow/width fixes for buttons & controls --- */
+
+/* 모든 컨트롤이 패딩을 포함한 너비 계산을 하게 함 */
+button, .btn, input, select, textarea {
+  box-sizing: border-box;
+  max-width: 100%; /* 부모를 넘지 않도록 제한 */
+}
+
+/* 긴 텍스트가 버튼을 길게 만드는 경우 잘림 처리 */
+button, .btn {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* '전체 너비' 버튼(예: 계산하기)은 명시적으로 block으로 100% 차지하도록 */
+.btn.full,
+.btn.primary,
+button.full-width {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* 레코드 항목 내 액션 버튼(작은 버튼)은 본래 크기 유지 */
+.record-actions button,
+.record-actions .btn {
+  width: auto;
+  max-width: 240px; /* 필요 시 조정: 큰 버튼이 너무 넓으면 제한 */
+}
+
+/* 레코드 정보 영역이 가변으로 늘어나도록 보장 */
+.record-info {
+  flex: 1 1 auto;
+  min-width: 0; /* 텍스트 잘림을 위해 필요 */
+}
+
+/* 카드 모양(둥근 모서리) 내부에서 그림자/자식이 넘치지 않게 */
+.record-item,
+.card,
+.container-card {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+/* 모바일/좁은 화면 보정: 버튼 위아래 여백 유지 */
+@media (max-width: 480px) {
+  .record-actions button,
+  .record-actions .btn {
+    max-width: 100%;
+  }
+}
