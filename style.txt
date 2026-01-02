@@ -1,0 +1,125 @@
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f2f4f6;
+}
+
+.app {
+  max-width: 390px;
+  margin: auto;
+  padding: 16px 16px 90px;
+}
+
+header {
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #6b7684;
+  margin-top: 4px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+}
+
+.card.highlight {
+  background: #f9fafb;
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+label {
+  font-size: 13px;
+  color: #4e5968;
+  margin-bottom: 6px;
+  display: block;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d6db;
+  margin-bottom: 6px;
+}
+
+.checkbox {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.score-label {
+  font-size: 13px;
+  color: #6b7684;
+}
+
+.score {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 6px 0 10px;
+}
+
+ul {
+  padding-left: 18px;
+  font-size: 13px;
+  color: #4e5968;
+}
+
+.record-item {
+  margin-bottom: 12px;
+}
+
+.record-item button {
+  margin-top: 6px;
+  padding: 6px;
+  font-size: 12px;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 15px;
+}
+
+button.ghost {
+  background: #f2f4f6;
+}
+
+button.danger {
+  color: #e53935;
+}
+
+.cta {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 390px;
+  background: #0064ff;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 10px 20px rgba(0,100,255,0.3);
+}

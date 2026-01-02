@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>군 근무 마일리지 계산기</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>군 근무 마일리지</h1>
+      <p class="subtitle">근무 시간을 입력하면 자동 계산됩니다</p>
+    </header>
+
+    <section class="card">
+      <div class="field">
+        <label>시작 일시</label>
+        <input type="datetime-local" id="startTime">
+        <select id="startDayType">
+          <option value="weekday">평일</option>
+          <option value="weekend">주말</option>
+          <option value="holiday">공휴일</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>종료 일시</label>
+        <input type="datetime-local" id="endTime">
+        <select id="endDayType">
+          <option value="weekday">평일</option>
+          <option value="weekend">주말</option>
+          <option value="holiday">공휴일</option>
+        </select>
+      </div>
+
+      <label class="checkbox">
+        <input type="checkbox" id="substitute">
+        대리근무
+      </label>
+    </section>
+
+    <section class="card highlight">
+      <p class="score-label">이번 근무 점수</p>
+      <p class="score" id="score">- 점</p>
+      <ul id="reason"></ul>
+    </section>
+
+    <section class="card">
+      <h2>누적 기록</h2>
+      <ul id="records"></ul>
+      <button class="ghost danger" onclick="clearAll()">기록 전체 초기화</button>
+    </section>
+  </div>
+
+  <button class="cta" onclick="calculate()">계산하기</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
