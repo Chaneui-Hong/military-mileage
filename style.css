@@ -141,3 +141,32 @@ button.full-width {
     max-width: 100%;
   }
 }
+
+/* Reduce width of date/display boxes so they don't overflow on small screens */
+.controls .date-display,
+.controls .date-picker,
+.controls input[type="datetime-local"],
+.controls input[type="date"],
+.controls .btn.date,
+.controls .btn--date {
+  box-sizing: border-box;
+  display: block;
+  width: 92%;           /* 부모 너비의 92%로 줄여 살짝 여백 확보 */
+  max-width: 100%;
+  margin-left: auto;    /* 가운데 정렬 (원하면 제거 가능) */
+  margin-right: auto;
+  white-space: normal;   /* 긴 텍스트는 줄바꿈 허용 */
+  overflow-wrap: anywhere;
+}
+
+/* 모바일에서는 약간 더 좁게 */
+@media (max-width: 480px) {
+  .controls .date-display,
+  .controls .date-picker,
+  .controls input[type="datetime-local"],
+  .controls input[type="date"],
+  .controls .btn.date,
+  .controls .btn--date {
+    width: 94%;
+  }
+}
