@@ -1,0 +1,140 @@
+/************************************************
+ * 군 근무 마일리지 계산기 – 최종 로직
+ * - 30분 단위 슬롯 계산
+ * - 날짜별 분리 (자정 기준)
+ * - 하루 최대 "연속 4시간"만 인정
+ * - 연속 구간 중 최고 점수 구간 선택
+ ************************************************/
+
+/**
+ * 시간대 판별
+ */
+function getTimeSlot(hour) {
+  if (hour >= 6 && hour < 18) return "day";        // 일과
+  if (hour >= 18 && hour < 22) return "evening";  // 일과후
+  return "night";                                 // 야간
+}
+
+/**
+ * 30분 슬롯당 점수 계산
+ */
+function getSlotScore(date, dayType, isSubstitute) {
+  const hour = date.getHours();
+  const slot = getTimeSlot(hour);
+
+  let base = 0;
+
+  // 기본 점수
+  if (dayType === "weekday") {
+    if (slot === "evening") base = 1;
+    if (slot === "night") base = 1.5;
+  } else {
+    if (slot === "day") base = 1;
+    if (slot === "evening") base = 1.5;
+    if (slot === "night") base = 2;
+  }
+
+  // 대리근무 가산
+  let extra = 0;
+  if (isSubstitute) {
+    if (dayType === "weekday" && slot === "day") {
+      extra = 1;
+    } else {
+      extra = 0.5;
+    }
+  }
+
+  // 30분 단위이므로 /2
+  return (base + extra) / 2;
+}
+
+/**
+ * 메인 계산 함수
+ */
+function calculateMileage(startTime, endTime, dayType, isSubstitute) {
+  if (!(startTime instanceof Date) || !(endTime instanceof Date)) {
+    throw new Error("시간 형식이 올바르지 않습니다.");
+  }
+  if (startTime >= endTime) {
+    throw new Error("종료 시간이 시작 시간보다 빠를 수 없습니다.");
+  }
+
+  /** 1️⃣ 30분 슬롯 분해 */
+  let slots = [];
+  let current = new Date(startTime);
+
+  while (current < endTime) {
+    slots.push({
+      time: new Date(current),
+      score: getSlotScore(current, dayType, isSubstitute)
+    });
+    current.setMinutes(current.getMinutes() + 30);
+  }
+
+  /** 2️⃣ 날짜별 그룹화 (자정 기준) */
+  const byDate = {};
+  slots.forEach(slot => {
+    const dateKey = slot.time.toISOString().split("T")[0];
+    if (!byDate[dateKey]) byDate[dateKey] = [];
+    byDate[dateKey].push(slot);
+  });
+
+  let totalScore = 0;
+  let reasonLines = [];
+
+  /** 3️⃣ 날짜별 연속 4시간(8슬롯) 중 최고 점수 선택 */
+  for (const date in byDate) {
+    const daySlots = byDate[date];
+
+    let bestSum = 0;
+    let bestStartIndex = null;
+
+    // 연속 4시간 = 8개 슬롯
+    if (daySlots.length >= 8) {
+      for (let i = 0; i <= daySlots.length - 8; i++) {
+        let sum = 0;
+        for (let j = i; j < i + 8; j++) {
+          sum += daySlots[j].score;
+        }
+        if (sum > bestSum) {
+          bestSum = sum;
+          bestStartIndex = i;
+        }
+      }
+    } else {
+      // 4시간 미만이면 전부 인정
+      bestSum = daySlots.reduce((acc, s) => acc + s.score, 0);
+    }
+
+    totalScore += bestSum;
+
+    if (bestStartIndex !== null) {
+      const start = daySlots[bestStartIndex].time;
+      const end = new Date(start);
+      end.setHours(end.getHours() + 4);
+
+      reasonLines.push(
+        `- ${date} ${formatTime(start)}~${formatTime(end)} ` +
+        `(연속 근무 최고 점수 구간 적용) → ${bestSum.toFixed(1)}점`
+      );
+    } else {
+      reasonLines.push(
+        `- ${date} 근무 ${ (bestSum * 2).toFixed(1) }시간 인정 → ${bestSum.toFixed(1)}점`
+      );
+    }
+  }
+
+  return {
+    total: totalScore.toFixed(1),
+    reason: reasonLines.join("\n")
+  };
+}
+
+/**
+ * 시간 포맷 (HH:MM)
+ */
+function formatTime(date) {
+  const h = String(date.getHours()).padStart(2, "0");
+  const m = String(date.getMinutes()).padStart(2, "0");
+  return `${h}:${m}`;
+}
