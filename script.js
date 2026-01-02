@@ -86,14 +86,14 @@ function calculate() {
     }
   }
 
-  score.innerText = `${best.score.toFixed(1)} 점`;
+  score.innerText = `${best.score.toFixed(2)} 점`;
   reason.innerHTML = "";
 
   best.list.forEach(s => {
     const li = document.createElement("li");
     li.innerText =
       `${s.start.toLocaleString()} ~ ${s.end.toLocaleTimeString()} ` +
-      `(${s.dayType}) ${s.hours}시간 × ${s.point}점`;
+      `(${s.dayType}) ${s.hours}시간 × ${s.point.toFixed(2)}점`;
     reason.appendChild(li);
   });
 
@@ -102,17 +102,33 @@ function calculate() {
 }
 
 function render() {
-  recordsEl = records;
-  recordsEl = document.getElementById("records");
+  // recordsEl 변수 정리 및 레코드 목록 가져오기
+  let recordsEl = document.getElementById("records");
+  if (!recordsEl) return;
+
+  // 누적 점수 표시 요소가 없으면 생성 (records 요소 앞에 삽입)
+  let totalEl = document.getElementById("totalScore");
+  if (!totalEl) {
+    totalEl = document.createElement("div");
+    totalEl.id = "totalScore";
+    totalEl.style.marginBottom = "8px";
+    recordsEl.parentNode.insertBefore(totalEl, recordsEl);
+  }
+
+  // 누적 점수 계산 및 표시 (소수점 둘째자리, 기록 개수 포함)
+  const total = records.reduce((sum, r) => sum + (r.score || 0), 0);
+  const count = records.length;
+  totalEl.innerText = `누적 점수: ${total.toFixed(2)}점 (${count}건)`;
+
   recordsEl.innerHTML = "";
 
   records.forEach((r, i) => {
     const li = document.createElement("li");
     li.className = "record-item";
     li.innerHTML = `
-      <strong>${r.score.toFixed(1)}점</strong>
+      <strong>${r.score.toFixed(2)}점</strong>
       <ul>${r.list.map(s =>
-        `<li>${s.hours}시간 × ${s.point}점</li>`
+        `<li>${s.hours}시간 × ${s.point.toFixed(2)}점</li>`
       ).join("")}</ul>
       <button onclick="del(${i})">삭제</button>
     `;
