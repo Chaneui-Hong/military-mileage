@@ -47,9 +47,12 @@
     </section>
 
     <section class="card">
-      <h2>누적 기록</h2>
-      <ul id="records"></ul>
-      <button class="ghost danger" onclick="clearAll()">기록 전체 초기화</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 style="margin:0;">누적 기록</h2>
+        <span id="totalScore" style="font-weight:700; color:#3182f6;">0.00점</span>
+      </div>
+      <ul id="records" style="list-style:none; padding:0;"></ul>
+      <button class="ghost danger" style="width:100%; background:none; border:none; color:#8b95a1; margin-top:16px; cursor:pointer;" onclick="clearAll()">기록 전체 초기화</button>
     </section>
   </div>
 
